@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: guild-glory-bot
+    env: node
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ADMIN_USERNAME
+        value: admin
+      - key: ADMIN_PASSWORD
+        value: guildglory2025
+    healthCheckPath: /api/health
+    autoDeploy: true
