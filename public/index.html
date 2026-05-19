@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🔥 Guild Glory Bot - Free Fire</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #0a0a1a;
+      --bg2: #12122a;
+      --card: #1a1a3e;
+      --text: #ffffff;
+      --text2: #a0a0c0;
+      --orange: #ff6b35;
+      --red: #ff3b3b;
+      --green: #00ff88;
+      --gold: #ffd700;
+      --blue: #4a90ff;
+      --purple: #9b59b6;
+    }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    
+    /* LOGIN */
+    .login-wrap {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(ellipse at center, #1a1a3e 0%, #0a0a1a 70%);
+    }
+    .login-box {
+      background: var(--card);
+      border: 1px solid rgba(255,107,53,0.3);
+      border-radius: 20px;
+      padding: 45px 35px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 0 30px rgba(255,107,53,0.2);
+      text-align: center;
+    }
+    .login-box .logo { font-size: 60px; margin-bottom: 10px; }
+    .login-box h1 { font-size: 26px; background: linear-gradient(135deg, #ff6b35, #ff3b3b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .login-box p { color: var(--text2); font-size: 13px; margin: 8px 0 25px; }
+    .form-group { margin-bottom: 18px; text-align: left; }
+    .form-group label { display: block; font-size: 13px; color: var(--text2); margin-bottom: 6px; font-weight: 600; }
+    .form-group input {
+      width: 100%;
+      padding: 13px 15px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 15px;
+      transition: all 0.3s;
+    }
+    .form-group input:focus { outline: none; border-color: var(--orange); box-shadow: 0 0 12px rgba(255,107,53,0.2); }
+    .login-btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #ff6b35, #ff3b3b);
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      letter-spacing: 0.5px;
+    }
+    .login-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(255,107,53,0.4); }
+    .login-btn:disabled { opacity: 0.5; transform: none; }
+    .login-error {
+      background: rgba(255,59,59,0.15);
+      border: 1px solid rgba(255,59,59,0.3);
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 18px;
+      color: var(--red);
+      font-size: 13px;
+    }
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255,255,255,0.2);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    
+    /* DASHBOARD */
+    .header {
+      background: var(--bg2);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      padding: 14px 25px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header .brand {
+      font-size: 20px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #ff6b35, #ff3b3b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .header-right { display: flex; align-items: center; gap: 15px; }
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .status-badge.on { background: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.3); color: var(--green); }
+    .status-badge.off { background: rgba(255,59,59,0.1); border: 1px solid rgba(255,59,59,0.3); color: var(--red); }
+    .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+    .dot.on { background: var(--green); box-shadow: 0 0 8px var(--green); }
+    .dot.off { background: var(--red); box-shadow: 0 0 8px var(--red); }
+    .logout-btn {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.15);
+      color: var(--text2);
+      padding: 7px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.3s;
+    }
+    .logout-btn:hover { border-color: var(--red); color: var(--red); }
+
+    .main { max-width: 1300px; margin: 0 auto; padding: 25px; }
+
+    /* STATS */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 25px;
+    }
+    @media (max-width: 768px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+    .stat {
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 14px;
+      padding: 22px;
+      text-align: center;
+      transition: all 0.3s;
+    }
+    .stat:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
+    .stat-icon { font-size: 28px; margin-bottom: 8px; }
+    .stat-value { font-size: 28px; font-weight: 800; margin-bottom: 4px; }
+    .stat-value.gold { color: var(--gold); }
+    .stat-value.green { color: var(--green); }
+    .stat-value.blue { color: var(--blue); }
+    .stat-value.red { color: var(--red); }
+    .stat-label { font-size: 13px; color: var(--text2); font-weight: 500; }
+
+    /* GRID */
+    .grid { display: grid; grid-template-columns: 2fr 1fr; gap: 22px; }
+    @media (max-width: 1024px) { .grid { grid-template-columns: 1fr; } }
+    .card {
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 22px;
+    }
+    .card-hd {
+      padding: 18px 22px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .card-hd h2 { font-size: 16px; display: flex; align-items: center; gap: 8px; }
+    .card-bd { padding: 22px; }
+
+    /* Guild Setup */
+    .setup-row { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+    .setup-row input, .setup-row select {
+      padding: 12px 14px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 14px;
+      flex: 1;
+      min-width: 120px;
+    }
+    .setup-row select { min-width: 80px; flex: 0; }
+    .setup-row input:focus, .setup-row select:focus { outline: none; border-color: var(--orange); }
+
+    .btn {
+      padding: 11px 22px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+    .btn-primary { background: linear-gradient(135deg, #ff6b35, #ff3b3b); color: #fff; }
+    .btn-primary:hover { box-shadow: 0 4px 18px rgba(255,107,53,0.4); transform: translateY(-2px); }
+    .btn-success { background: linear-gradient(135deg, #00cc6a, #00ff88); color: #000; }
+    .btn-success:hover { box-shadow: 0 4px 18px rgba(0,255,136,0.3); transform: translateY(-2px); }
+    .btn-danger { background: linear-gradient(135deg, #cc0000, #ff3b3b); color: #fff; }
+    .btn-danger:hover { box-shadow: 0 4px 18px rgba(255,59,59,0.4); transform: translateY(-2px); }
+    .btn-outline { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #fff; }
+    .btn-outline:hover { border-color: var(--orange); color: var(--orange); }
+    .btn-sm { padding: 8px 14px; font-size: 12px; }
+    .btn-block { width: 100%; }
+    .btn-group { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-group .btn { flex: 1; min-width: 100px; }
+
+    /* Guild display */
+    .guild-card {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 18px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 12px;
+      margin-top: 14px;
+    }
+    .guild-avatar {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ff6b35, #ff3b3b);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: 900;
+      flex-shrink: 0;
+    }
+    .guild-meta h3 { font-size: 18px; margin-bottom: 3px; }
+    .guild-meta p { color: var(--text2); font-size: 13px; }
+    .guild-meta .tag {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-top: 5px;
+    }
+    .tag.ind { background: rgba(74,144,255,0.2); color: var(--blue); }
+    .tag.sg { background: rgba(155,89,182,0.2); color: var(--purple); }
+    .tag.br { background: rgba(0,255,136,0.15); color: var(--green); }
+
+    /* Controls */
+    .ctrl-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .ctrl-row:last-child { border-bottom: none; }
+    .ctrl-left { display: flex; align-items: center; gap: 12px; }
+    .ctrl-left .ic { font-size: 20px; }
+    .ctrl-left .lbl { font-size: 14px; font-weight: 600; }
+    .ctrl-left .dsc { font-size: 12px; color: var(--text2); }
+
+    .tgl { position: relative; width: 48px; height: 24px; cursor: pointer; flex-shrink: 0; }
+    .tgl input { display: none; }
+    .tgl-slider {
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(255,255,255,0.1);
+      border-radius: 12px;
+      transition: all 0.3s;
+    }
+    .tgl-slider::before {
+      content: '';
+      position: absolute;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: #fff;
+      top: 3px; left: 3px;
+      transition: all 0.3s;
+    }
+    .tgl input:checked + .tgl-slider { background: var(--green); }
+    .tgl input:checked + .tgl-slider::before { transform: translateX(24px); }
+
+    /* Activity */
+    .feed { max-height: 380px; overflow-y: auto; }
+    .feed::-webkit-scrollbar { width: 3px; }
+    .feed::-webkit-scrollbar-track { background: transparent; }
+    .feed::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+    .feed-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.02);
+    }
+    .feed-item .fi { font-size: 15px; margin-top: 1px; }
+    .feed-item .ft { flex: 1; font-size: 13px; line-height: 1.4; }
+    .feed-item .ftm { font-size: 11px; color: var(--text2); white-space: nowrap; margin-top: 1px; }
+
+    /* Accounts */
+    .acct-row { display: flex; gap: 8px; margin-bottom: 12px; }
+    .acct-row input { flex: 1; padding: 10px 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; font-size: 13px; }
+    .acct-row input:focus { outline: none; border-color: var(--orange); }
+    .acct-list { max-height: 180px; overflow-y: auto; }
+    .acct-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+    .acct-item .nm { font-weight: 600; font-size: 13px; }
+    .acct-item .uid { font-size: 11px; color: var(--text2); }
+    .acct-item .st {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 8px;
+    }
+    .acct-item .st.idle { background: rgba(255,255,255,0.08); color: var(--text2); }
+    .acct-item .rm { background: none; border: none; color: var(--red); cursor: pointer; font-size: 14px; padding: 4px 6px; }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      padding: 14px 22px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      z-index: 999;
+      animation: slideIn 0.3s ease;
+      max-width: 380px;
+      cursor: pointer;
+    }
+    .toast.success { background: rgba(0,255,136,0.15); border: 1px solid rgba(0,255,136,0.3); color: var(--green); }
+    .toast.error { background: rgba(255,59,59,0.15); border: 1px solid rgba(255,59,59,0.3); color: var(--red); }
+    .toast.info { background: rgba(74,144,255,0.15); border: 1px solid rgba(74,144,255,0.3); color: var(--blue); }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .glory-anim {
+      animation: pop 0.3s ease;
+    }
+    @keyframes pop {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.12); }
+      100% { transform: scale(1); }
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 30px 20px;
+      color: var(--text2);
+      font-size: 14px;
+    }
+
+    .api-badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: 600;
+      background: rgba(74,144,255,0.15);
+      color: var(--blue);
+      margin-left: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+  <script>
+  // ============ MINI REACT-LIKE FRAMEWORK ============
+  const $ = (s, p) => (p || document).querySelector(s);
+  const $$ = (s, p) => [...(p || document).querySelectorAll(s)];
+  
+  function h(tag, attrs, ...kids) {
+    if (typeof tag === 'function') return tag({ ...attrs, children: kids });
+    const el = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs || {})) {
+      if (k.startsWith('on') && typeof v === 'function') el.addEventListener(k.slice(2).toLowerCase(), v);
+      else if (k === 'className') el.className = v;
+      else if (k === 'style' && typeof v === 'object') Object.assign(el.style, v);
+      else if (k === 'disabled') { if (v) el.setAttribute('disabled', ''); }
+      else if (k === 'checked') el.checked = !!v;
+      else if (k === 'value') el.value = v;
+      else if (k === 'innerHTML') el.innerHTML = v;
+      else if (v !== false && v !== null && v !== undefined) el.setAttribute(k, v);
+    }
+    for (const kid of kids.flat()) {
+      if (kid == null) continue;
+      el.appendChild(typeof kid === 'string' ? document.createTextNode(kid) : kid);
+    }
+    return el;
+  }
+
+  function render(component, root) {
+    root.innerHTML = '';
+    root.appendChild(component());
+  }
+
+  // ============ STATE ============
+  const state = {
+    user: null,
+    token: localStorage.getItem('token'),
+    loading: true,
+    error: '',
+    // Bot state
+    bot: {
+      running: false,
+      guildId: null,
+      guildName: 'Not Set',
+      guildLevel: 0,
+      guildMembers: 0,
+      guildCapacity: 50,
+      region: 'IND',
+      apiSource: 'none',
+      glory: 0,
+      matchesPlayed: 0,
+      likesSent: 0,
+      membersApproved: 0,
+      autoAccept: false,
+      autoMatch: false,
+      autoLike: false,
+      startedAt: null,
+      uptime: 0,
+      botAccounts: [],
+      activityLog: []
+    },
+    toast: null,
+    guildIdInput: '',
+    guildNameInput: '',
+    regionInput: 'IND',
+    accUidInput: '',
+    accNameInput: '',
+    actionLoading: false
+  };
+
+  const API = window.location.origin;
+
+  async function api(endpoint, opts = {}) {
+    const res = await fetch(`${API}${endpoint}`, {
+      ...opts,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${state.token}`,
+        ...opts.headers
+      },
+      body: opts.body ? JSON.stringify(opts.body) : undefined
+    });
+    return res.json();
+  }
+
+  function toast(msg, type = 'info') {
+    state.toast = { msg, type };
+    update();
+    setTimeout(() => { state.toast = null; update(); }, 3000);
+  }
+
+  function formatTime(ts) {
+    if (!ts) return '';
+    return new Date(ts).toLocaleTimeString();
+  }
+
+  function formatDate(ts) {
+    if (!ts) return 'N/A';
+    return new Date(ts).toLocaleString();
+  }
+
+  function getUptime(minutes) {
+    if (!minutes) return '0m';
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+    return h > 0 ? `${h}h ${m}m` : `${m}m`;
+  }
+
+  // ============ PAGES ============
+  function LoginPage() {
+    const [username, setUser] = React.useState('');
+    const [password, setPass] = React.useState('');
+    const [loading, setLoad] = React.useState(false);
+
+    const handleLogin = async (e) => {
+      e.preventDefault();
+      setLoad(true);
+      state.error = '';
+      try {
+        const res = await api('/api/auth/login', {
+          method: 'POST',
+          body: { username, password }
+        });
+        if (res.success) {
+          state.token = res.token;
+          localStorage.setItem('token', res.token);
+          state.user = res.user;
+          update();
+        } else {
+          state.error = res.message || 'Login failed';
+          update();
+        }
+      } catch (err) {
+        state.error = 'Connection error. Is the server running?';
+        update();
+      }
+      setLoad(false);
+    };
+
+    return h('div', { className: 'login-wrap' },
+      h('div', { className: 'login-box' },
+        h('div', { className: 'logo' }, '🔥'),
+        h('h1', null, 'Guild Glory Bot'),
+        h('p', null, 'Free Fire Guild Automation System v3.0'),
+        state.error ? h('div', { className: 'login-error' }, state.error) : null,
+        h('form', { onSubmit: handleLogin },
+          h('div', { className: 'form-group' },
+            h('label', null, 'Username'),
+            h('input', { type: 'text', value: username, onInput: e => setUser(e.target.value), placeholder: 'admin', required: true })
+          ),
+          h('div', { className: 'form-group' },
+            h('label', null, 'Password'),
+            h('input', { type: 'password', value: password, onInput: e => setPass(e.target.value), placeholder: 'Enter password', required: true })
+          ),
+          h('button', { type: 'submit', className: 'login-btn', disabled: loading },
+            loading ? h('span', { className: 'spinner' }) : 'ACCESS DASHBOARD'
+          )
+        )
+      )
+    );
+  }
+
+  function Dashboard() {
+    const activityEndRef = React.useRef(null);
+
+    React.useEffect(() => {
+      const fetchStatus = async () => {
+        try {
+          const data = await api('/api/guild/status');
+          if (data && !data.error) {
+            Object.assign(state.bot, data);
+            update();
+          }
+        } catch (e) {}
+      };
+      fetchStatus();
+      const interval = setInterval(fetchStatus, 2500);
+      return () => clearInterval(interval);
+    }, []);
+
+    React.useEffect(() => {
+      if (activityEndRef.current) {
+        activityEndRef.current.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+
+    const setGuild = async () => {
+      if (!state.guildIdInput) { toast('Enter Guild ID', 'error'); return; }
+      state.actionLoading = true; update();
+      const data = await api('/api/guild/set', {
+        method: 'POST',
+        body: { guildId: state.guildIdInput, guildName: state.guildNameInput, region: state.regionInput }
+      });
+      if (data.success) {
+        state.bot.guildId = data.guild.id;
+        state.bot.guildName = data.guild.name;
+        state.bot.region = data.guild.region;
+        toast(`✅ Guild set: ${data.guild.name}`, 'success');
+      } else {
+        toast(data.error || 'Failed', 'error');
+      }
+      state.actionLoading = false; update();
+    };
+
+    const startBot = async () => {
+      state.actionLoading = true; update();
+      const data = await api('/api/bot/start', { method: 'POST' });
+      if (data.success) {
+        state.bot.running = true;
+        toast('🤖 Bot started!', 'success');
+      } else {
+        toast(data.error || 'Cannot start', 'error');
+      }
+      state.actionLoading = false; update();
+    };
+
+    const stopBot = async () => {
+      state.actionLoading = true; update();
+      const data = await api('/api/bot/stop', { method: 'POST' });
+      if (data.success) {
+        state.bot.running = false;
+        toast('🛑 Bot stopped', 'info');
+      }
+      state.actionLoading = false; update();
+    };
+
+    const toggle = async (feature) => {
+      const data = await api(`/api/bot/toggle/${feature}`, { method: 'POST' });
+      if (data.success) {
+        const key = `auto${feature.charAt(0).toUpperCase() + feature.slice(1)}`;
+        state.bot[key] = data[key];
+        toast(`${feature} ${data[key] ? 'ON' : 'OFF'}`, 'info');
+      }
+    };
+
+    const addGlory = async () => {
+      const amt = Math.floor(Math.random() * 30) + 10;
+      const data = await api('/api/bot/add-glory', { method: 'POST', body: { amount: amt } });
+      if (data.success) {
+        state.bot.glory = data.glory;
+        toast(`✨ +${amt} Glory!`, 'success');
+      }
+    };
+
+    const addAccount = async () => {
+      if (!state.accUidInput) { toast('Enter UID', 'error'); return; }
+      const data = await api('/api/bot/accounts/add', {
+        method: 'POST',
+        body: { accounts: [{ uid: state.accUidInput, name: state.accNameInput }] }
+      });
+      if (data.success) {
+        state.bot.botAccounts = data.accounts;
+        state.accUidInput = '';
+        state.accNameInput = '';
+        toast('✅ Account added', 'success');
+        update();
+      }
+    };
+
+    const removeAccount = async (uid) => {
+      const data = await api('/api/bot/accounts/remove', { method: 'POST', body: { uid } });
+      if (data.success) {
+        state.bot.botAccounts = state.bot.botAccounts.filter(a => a.uid !== uid);
+        toast('Account removed', 'info');
+        update();
+      }
+    };
+
+    const resetBot = async () => {
+      if (!confirm('Reset all data?')) return;
+      const data = await api('/api/bot/reset', { method: 'POST' });
+      if (data.success) {
+        state.bot = {
+          running: false, guildId: null, guildName: 'Not Set', guildLevel: 0,
+          guildMembers: 0, guildCapacity: 50, region: 'IND', apiSource: 'none',
+          glory: 0, matchesPlayed: 0, likesSent: 0, membersApproved: 0,
+          autoAccept: false, autoMatch: false, autoLike: false,
+          startedAt: null, uptime: 0, botAccounts: [],
+          activityLog: [{ type: 'reset', message: '🔄 Bot has been reset', timestamp: new Date().toISOString() }]
+        };
+        toast('🔄 Reset complete', 'info');
+        update();
+      }
+    };
+
+    const logout = () => {
+      localStorage.removeItem('token');
+      state.token = null;
+      state.user = null;
+      update();
+    };
+
+    const b = state.bot;
+    const log = b.activityLog || [];
+
+    return h('div', null,
+      // Header
+      h('div', { className: 'header' },
+        h('div', null,
+          h('span', { className: 'brand' }, '🔥 GUILD GLORY BOT')
+        ),
+        h('div', { className: 'header-right' },
+          h('div', { className: `status-badge ${b.running ? 'on' : 'off'}` },
+            h('span', { className: `dot ${b.running ? 'on' : 'off'}` }),
+            b.running ? 'BOT ACTIVE' : 'BOT OFFLINE'
+          ),
+          b.apiSource !== 'none' ? h('span', { className: 'api-badge' }, b.apiSource) : null,
+          h('button', { className: 'logout-btn', onClick: logout }, 'Logout')
+        )
+      ),
+
+      // Main
+      h('div', { className: 'main' },
+
+        // Stats
+        h('div', { className: 'stats' },
+          h('div', { className: 'stat' },
+            h('div', { className: 'stat-icon' }, '🏆'),
+            h('div', { className: 'stat-value gold' + (b.glory > 0 ? ' glory-anim' : '') }, b.glory),
+            h('div', { className: 'stat-label' }, 'Guild Glory')
+          ),
+          h('div', { className: 'stat' },
+            h('div', { className: 'stat-icon' }, '👥'),
+            h('div', { className: 'stat-value green' }, `${b.guildMembers}/${b.guildCapacity}`),
+            h('div', { className: 'stat-label' }, 'Members')
+          ),
+          h('div', { className: 'stat' },
+            h('div', { className: 'stat-icon' }, '🎮'),
+            h('div', { className: 'stat-value blue' }, b.matchesPlayed),
+            h('div', { className: 'stat-label' }, 'Matches Played')
+          ),
+          h('div', { className: 'stat' },
+            h('div', { className: 'stat-icon' }, '❤️'),
+            h('div', { className: 'stat-value red' }, b.likesSent),
+            h('div', { className: 'stat-label' }, 'Likes Sent')
+          )
+        ),
+
+        // Grid
+        h('div', { className: 'grid' },
+
+          // LEFT
+          h('div', null,
+
+            // Guild Setup
+            h('div', { className: 'card' },
+              h('div', { className: 'card-hd' },
+                h('h2', null, '🏛️ Guild Setup'),
+                b.guildId ? h('span', { style: { fontSize: 12, color: 'var(--text2)' } }, `Lv.${b.guildLevel}`) : null
+              ),
+              h('div', { className: 'card-bd' },
+                h('div', { className: 'setup-row' },
+                  h('input', {
+                    type: 'text', placeholder: 'Guild ID (e.g. 3033195648)', 
+                    value: state.guildIdInput,
+                    onInput: e => { state.guildIdInput = e.target.value; update(); },
+                    disabled: b.running
+                  }),
+                  h('input', {
+                    type: 'text', placeholder: 'Guild Name (optional)',
+                    value: state.guildNameInput,
+                    onInput: e => { state.guildNameInput = e.target.value; update(); },
+                    disabled: b.running
+                  }),
+                  h('select', {
+                    value: state.regionInput,
+                    onChange: e => { state.regionInput = e.target.value; update(); },
+                    disabled: b.running
+                  },
+                    h('option', { value: 'IND' }, 'IND'),
+                    h('option', { value: 'BR' }, 'BR'),
+                    h('option', { value: 'SG' }, 'SG'),
+                    h('option', { value: 'ID' }, 'ID'),
+                    h('option', { value: 'TH' }, 'TH'),
+                    h('option', { value: 'VN' }, 'VN'),
+                    h('option', { value: 'US' }, 'US'),
+                    h('option', { value: 'PK' }, 'PK'),
+                    h('option', { value: 'BD' }, 'BD')
+                  )
+                ),
+                h('button', {
+                  className: 'btn btn-primary btn-block',
+                  onClick: setGuild,
+                  disabled: b.running || state.actionLoading
+                }, state.actionLoading ? 'Setting...' : 'SET GUILD'),
+
+                b.guildId ? h('div', { className: 'guild-card' },
+                  h('div', { className: 'guild-avatar' }, b.guildName.charAt(0).toUpperCase()),
+                  h('div', { className: 'guild-meta' },
+                    h('h3', null, b.guildName),
+                    h('p', null, `ID: ${b.guildId} | Region: ${b.region}`),
+                    h('p', { style: { fontSize: 12, marginTop: 3 } },
+                      h('span', { className: `tag ${b.region.toLowerCase()}` }, b.region),
+                      b.startedAt ? ` Started: ${formatDate(b.startedAt)}` : '',
+                      b.uptime > 0 ? ` | Uptime: ${getUptime(b.uptime)}` : ''
+                    )
+                  )
+                ) : null
+              )
+            ),
+
+            // Bot Controls
+            h('div', { className: 'card' },
+              h('div', { className: 'card-hd' },
+                h('h2', null, '⚙️ Bot Controls')
+              ),
+              h('div', { className: 'card-bd' },
+                h('div', { className: 'btn-group', style: { marginBottom: 18 } },
+                  !b.running
+                    ? h('button', { className: 'btn btn-success', onClick: startBot, disabled: !b.guildId || state.actionLoading },
+                        state.actionLoading ? 'Starting...' : '▶ START BOT')
+                    : h('button', { className: 'btn btn-danger', onClick: stopBot, disabled: state.actionLoading },
+                        state.actionLoading ? 'Stopping...' : '⏹ STOP BOT'),
+                  h('button', { className: 'btn btn-outline', onClick: addGlory }, '✨ +Glory'),
+                  h('button', { className: 'btn btn-outline', onClick: resetBot, disabled: b.running,
+                      style: { borderColor: 'rgba(255,59,59,0.3)', color: '#ff3b3b' } }, '🔄 Reset')
+                ),
+
+                // Toggles
+                h('div', { className: 'ctrl-row' },
+                  h('div', { className: 'ctrl-left' },
+                    h('span', { className: 'ic' }, '👥'),
+                    h('div', null,
+                      h('div', { className: 'lbl' }, 'Auto-Accept Members'),
+                      h('div', { className: 'dsc' }, 'Approve join requests automatically')
+                    )
+                  ),
+                  h('label', { className: 'tgl' },
+                    h('input', { type: 'checkbox', checked: b.autoAccept, onChange: () => toggle('accept'), disabled: !b.running }),
+                    h('span', { className: 'tgl-slider' })
+                  )
+                ),
+                h('div', { className: 'ctrl-row' },
+                  h('div', { className: 'ctrl-left' },
+                    h('span', { className: 'ic' }, '🎮'),
+                    h('div', null,
+                      h('div', { className: 'lbl' }, 'Auto-Match Making'),
+                      h('div', { className: 'dsc' }, 'Play matches for guild glory')
+                    )
+                  ),
+                  h('label', { className: 'tgl' },
+                    h('input', { type: 'checkbox', checked: b.autoMatch, onChange: () => toggle('match'), disabled: !b.running }),
+                    h('span', { className: 'tgl-slider' })
+                  )
+                ),
+                h('div', { className: 'ctrl-row' },
+                  h('div', { className: 'ctrl-left' },
+                    h('span', { className: 'ic' }, '❤️'),
+                    h('div', null,
+                      h('div', { className: 'lbl' }, 'Auto-Like System'),
+                      h('div', { className: 'dsc' }, 'Send likes to guild members')
+                    )
+                  ),
+                  h('label', { className: 'tgl' },
+                    h('input', { type: 'checkbox', checked: b.autoLike, onChange: () => toggle('like'), disabled: !b.running }),
+                    h('span', { className: 'tgl-slider' })
+                  )
+                )
+              )
+            )
+          ),
+
+          // RIGHT
+          h('div', null,
+
+            // Activity
+            h('div', { className: 'card' },
+              h('div', { className: 'card-hd' },
+                h('h2', null, '📋 Activity Log'),
+                h('span', { style: { fontSize: 12, color: 'var(--text2)' } }, `${log.length} entries`)
+              ),
+              h('div', { className: 'card-bd', style: { padding: '6px 0' } },
+                log.length === 0
+                  ? h('div', { className: 'empty-state' }, 'No activity yet. Start the bot!')
+                  : h('div', { className: 'feed' },
+                      [...log].reverse().map((e, i) =>
+                        h('div', { className: 'feed-item', key: i },
+                          h('span', { className: 'fi' },
+                            e.type === 'glory' ? '✨' : e.type === 'match' ? '🎮' : e.type === 'like' ? '❤️' :
+                            e.type === 'member' ? '👤' : e.type === 'bot_start' ? '🤖' : e.type === 'bot_stop' ? '🛑' :
+                            e.type === 'guild' ? '🏛️' : e.type === 'accounts' ? '➕' : e.type === 'toggle' ? '🔄' :
+                            e.type === 'reset' ? '🔄' : e.type === 'system' ? '📌' : '📌'
+                          ),
+                          h('span', { className: 'ft' }, e.message),
+                          h('span', { className: 'ftm' }, formatTime(e.timestamp))
+                        )
+                      ),
+                      h('div', { ref: activityEndRef })
+                    )
+              )
+            ),
+
+            // Bot Accounts
+            h('div', { className: 'card' },
+              h('div', { className: 'card-hd' },
+                h('h2', null, '🤖 Bot Accounts'),
+                h('span', { style: { fontSize: 12, color: 'var(--text2)' } }, `${b.botAccounts.length} total`)
+              ),
+              h('div', { className: 'card-bd' },
+                h('div', { className: 'acct-row' },
+                  h('input', {
+                    type: 'text', placeholder: 'UID',
+                    value: state.accUidInput,
+                    onInput: e => { state.accUidInput = e.target.value; update(); }
+                  }),
+                  h('input', {
+                    type: 'text', placeholder: 'Name',
+                    value: state.accNameInput,
+                    onInput: e => { state.accNameInput = e.target.value; update(); }
+                  }),
+                  h('button', { className: 'btn btn-primary btn-sm', onClick: addAccount }, 'Add')
+                ),
+                b.botAccounts.length === 0
+                  ? h('div', { className: 'empty-state' }, 'No bot accounts added')
+                  : h('div', { className: 'acct-list' },
+                      b.botAccounts.map((a, i) =>
+                        h('div', { className: 'acct-item', key: i },
+                          h('div', null,
+                            h('div', { className: 'nm' }, a.name),
+                            h('div', { className: 'uid' }, `UID: ${a.uid}`)
+                          ),
+                          h('div', { style: { display: 'flex', alignItems: 'center', gap: 8 } },
+                            h('span', { className: `st ${a.status}` }, a.status),
+                            h('button', { className: 'rm', onClick: () => removeAccount(a.uid) }, '✕')
+                          )
+                        )
+                      )
+                    )
+              )
+            )
+          )
+        )
+      ),
+
+      // Toast
+      state.toast ? h('div', { className: `toast ${state.toast.type}`, onClick: () => { state.toast = null; update(); } }, state.toast.msg) : null
+    );
+  }
+
+  // ============ APP ============
+  function App() {
+    const [ready, setReady] = React.useState(false);
+    const [isAuthed, setAuth] = React.useState(false);
+
+    React.useEffect(() => {
+      const check = async () => {
+        if (state.token) {
+          try {
+            const res = await api('/api/auth/verify');
+            if (res.valid) {
+              state.user = { username: 'admin', role: 'admin' };
+              setAuth(true);
+            } else {
+              state.token = null;
+              localStorage.removeItem('token');
+            }
+          } catch(e) {
+            state.token = null;
+            localStorage.removeItem('token');
+          }
+        }
+        setReady(true);
+      };
+      check();
+    }, []);
+
+    if (!ready) {
+      return h('div', { className: 'login-wrap' },
+        h('div', { className: 'login-box' },
+          h('div', { className: 'spinner', style: { width: 36, height: 36, margin: '0 auto' } }),
+          h('p', { style: { marginTop: 20, color: 'var(--text2)' } }, 'Loading...')
+        )
+      );
+    }
+
+    if (!state.token || !state.user) return LoginPage();
+    return Dashboard();
+  }
+
+  // ============ MOUNT ============
+  const root = document.getElementById('app');
+  function update() { ReactDOM.render(React.createElement(App), root); }
+  update();
+  </script>
+  
+  <!-- React for component state -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+</body>
+</html>
